@@ -4,6 +4,9 @@ import os
 
 app = Flask(__name__)
 
+def hash_password(geslo):
+    return len(geslo)
+
 @app.route('/')
 def index():
     return render_template("index.html")
@@ -19,7 +22,8 @@ def prijava_submit():
 
     conn = sqlite3.connect("test.db")
     cursor = conn.cursor()
-    query = 'SELECT * FROM users WHERE username="'+uporabnisko_ime+'" AND password="'+geslo+'"'
+    geslo_hash = hash_password(geslo)
+    query = 'SELECT * FROM users WHERE username="'+uporabnisko_ime+'" AND password_hash='+str(geslo_hash)
     cursor.execute(query)
     result = cursor.fetchone()
     conn.close()
@@ -40,7 +44,8 @@ def registracija_submit():
     uporabnisko_ime = request.args.get("username")
     geslo = request.args.get("geslo")
 
-    insert_command = 'INSERT INTO users(username, password) VALUES("'+uporabnisko_ime+'", "'+geslo+'");'
+    geslo_hash = hash_password(geslo)
+    insert_command = 'INSERT INTO users(username, password_hash) VALUES("'+uporabnisko_ime+'", '+str(geslo_hash)+');'
     print(insert_command)
     conn = sqlite3.connect("test.db")
     cursor = conn.cursor()
